@@ -2,34 +2,18 @@
 
 from .schemas import (
     ActionItem,
-    AnalysisRequest,
-    AnalysisResponse,
-    AudioTranscriptionRequest,
-    AudioTranscriptionResponse,
-    ChatMessage,
-    ChatRequest,
-    ChatResponse,
+    AnalysisResult,
     Decision,
     Meeting,
-    MeetingSummary,
-    MessageRole,
+    QuestionAnswer,
     TranscriptSegment,
-    TranscriptUploadResponse,
 )
 
 __all__ = [
     "ActionItem",
-    "AnalysisRequest",
-    "AnalysisResponse",
-    "AudioTranscriptionRequest",
-    "AudioTranscriptionResponse",
-    "ChatMessage",
-    "ChatRequest",
-    "ChatResponse",
+    "AnalysisResult",
     "Decision",
     "Meeting",
-    "MeetingSummary",
-    "MessageRole",
+    "QuestionAnswer",
     "TranscriptSegment",
-    "TranscriptUploadResponse",
 ]
