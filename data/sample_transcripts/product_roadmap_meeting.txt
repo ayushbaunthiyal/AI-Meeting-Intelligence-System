@@ -1,0 +1,55 @@
+[00:00] Sarah: Good morning everyone. Thank you for joining this product roadmap review meeting. Let's start with the Q3 goals.
+
+[00:15] Mike: Thanks Sarah. I've prepared the OKR summary. Our main goal for Q3 is to increase user engagement by 25%.
+
+[00:32] Sarah: That's quite ambitious. What are the key results we're tracking?
+
+[00:45] Mike: We have three key results. First, reduce onboarding time from 5 days to 2 days. Second, increase daily active users by 15%. Third, achieve a Net Promoter Score of 50 or higher.
+
+[01:10] Lisa: I have concerns about the onboarding timeline. Our current flow has 12 steps. Reducing that significantly might impact feature discovery.
+
+[01:28] Sarah: Good point Lisa. What do you propose?
+
+[01:35] Lisa: I suggest we focus on progressive disclosure. Keep the core 5 steps for initial onboarding, then introduce advanced features gradually.
+
+[01:52] Mike: I like that approach. It balances simplicity with feature awareness.
+
+[02:05] Sarah: Agreed. Lisa, can you draft a new onboarding flow by next Friday?
+
+[02:15] Lisa: Yes, I'll have the wireframes ready by Friday.
+
+[02:22] Tom: On the DAU target, I think we need to invest in push notifications. Our current open rate is only 12%.
+
+[02:38] Sarah: What's the industry benchmark?
+
+[02:42] Tom: Top apps are seeing 35-40% open rates. We have room for improvement.
+
+[02:55] Mike: We should also consider email re-engagement campaigns for inactive users.
+
+[03:08] Sarah: Tom, can you prepare an analysis of our notification strategy with recommendations?
+
+[03:18] Tom: I'll have that ready by Wednesday.
+
+[03:25] Sarah: Perfect. Now let's discuss the NPS target. We're currently at 42.
+
+[03:35] Lisa: Customer feedback indicates the main pain points are response time and feature complexity.
+
+[03:48] Mike: We've already approved the new help center redesign. That should help with complexity.
+
+[04:02] Tom: For response time, we could implement an AI chatbot for tier-1 support.
+
+[04:15] Sarah: That's a good idea, but let's be careful about the customer experience.
+
+[04:25] Mike: We could run a pilot with 20% of users first to measure impact.
+
+[04:35] Sarah: I approve the chatbot pilot. Tom, work with the support team to define the scope. Target launch is end of July.
+
+[04:50] Tom: Understood. I'll coordinate with Jennifer from support.
+
+[05:00] Sarah: Alright, to summarize: Lisa is doing the new onboarding wireframes by Friday. Tom has the notification analysis by Wednesday and will lead the chatbot pilot. Mike, please update the OKR tracker with these initiatives.
+
+[05:20] Mike: Will do.
+
+[05:25] Sarah: Great meeting everyone. Let's reconvene next week for progress updates.
+
+[05:30] All: Thank you!

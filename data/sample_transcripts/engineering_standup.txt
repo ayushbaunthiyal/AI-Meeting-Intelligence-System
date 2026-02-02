@@ -1,0 +1,77 @@
+[00:00] John: Hello team, welcome to our weekly engineering standup. Let's go through updates and blockers.
+
+[00:12] Alice: I'll start. I completed the authentication refactoring yesterday. All tests are passing and the PR is ready for review.
+
+[00:28] John: Great work Alice. Who can review that?
+
+[00:33] Bob: I can take it. I'll review it this morning.
+
+[00:40] Alice: Thanks Bob. I also started on the database migration scripts for the new user schema.
+
+[00:52] John: What's the timeline on that?
+
+[00:58] Alice: Should be done by Thursday. I'm following the migration pattern we established last sprint.
+
+[01:10] Bob: My update - I'm about 80% done with the payment gateway integration. Hit a snag with the webhook handling.
+
+[01:25] John: What's the issue?
+
+[01:28] Bob: The provider sends duplicate webhook events in some cases. Need to implement idempotency handling.
+
+[01:42] Alice: I had a similar issue last year. I can share the solution I used.
+
+[01:50] Bob: That would be really helpful, thanks Alice.
+
+[01:55] John: Good collaboration. Bob, when do you expect to finish?
+
+[02:02] Bob: With Alice's help, I should be done by Friday.
+
+[02:10] Carol: My turn. I'm working on the performance optimization for the dashboard API.
+
+[02:22] John: How's that going?
+
+[02:25] Carol: I've identified the bottleneck - it's the analytics query. Currently takes 3 seconds, I've got it down to 800ms with query optimization.
+
+[02:42] Bob: That's impressive! What was the main change?
+
+[02:48] Carol: Added composite indexes and restructured the JOIN operations. Also implementing caching for frequently accessed data.
+
+[03:02] John: Excellent. Any blockers?
+
+[03:08] Carol: Yes, I need DevOps to increase the Redis cache size. I've submitted a ticket but haven't heard back.
+
+[03:20] John: I'll escalate that with DevOps today. Carol, send me the ticket number.
+
+[03:28] Carol: Will do, it's INFRA-456.
+
+[03:35] John: Got it. My update - I've been reviewing the architecture proposal for the microservices migration.
+
+[03:48] Alice: When can we discuss that as a team?
+
+[03:52] John: I'd like to schedule a design review meeting next Wednesday. Please block 2-4 PM.
+
+[04:02] Bob: Should we invite the infrastructure team?
+
+[04:08] John: Yes, good call. I'll include them in the invite.
+
+[04:15] Carol: Will there be pre-reading material?
+
+[04:20] John: I'll share the architecture document by Monday so everyone has time to review.
+
+[04:28] John: Any other updates or blockers?
+
+[04:32] Alice: Just a reminder - code freeze for the release is next Friday.
+
+[04:40] John: Right. Everyone please make sure your features are merged by Thursday EOD.
+
+[04:48] Bob: What about the feature flag for the new checkout flow?
+
+[04:55] John: We've decided to keep it disabled for this release. We'll enable it in the following release after more testing.
+
+[05:08] Carol: Makes sense. The current tests are at 85% coverage.
+
+[05:15] John: Good. Let's aim for 90% before we enable it.
+
+[05:22] John: Alright, that's all for today. Good progress everyone. Let's sync again same time Thursday.
+
+[05:30] All: Thanks John!
