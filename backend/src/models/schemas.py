@@ -1,270 +1,303 @@
 """
-Pydantic Models and Schemas for AI Meeting Intelligence System
+Pydantic Data Models (Schemas)
 
-This module defines all data models used throughout the application,
-ensuring type safety and validation for all data structures.
+This module defines all data structures used throughout the application.
+Pydantic models provide validation, serialization, and documentation.
+
+=============================================================================
+WHY PYDANTIC?
+=============================================================================
+
+1. VALIDATION: Automatic input validation with helpful error messages
+2. SERIALIZATION: Easy conversion to/from JSON, dict
+3. TYPE SAFETY: Full IDE support with type hints
+4. DOCUMENTATION: Auto-generated OpenAPI schemas for API docs
+
+=============================================================================
+MODEL HIERARCHY:
+=============================================================================
+
+    TranscriptSegment     ← Individual line from transcript
+           │
+           ▼
+    Meeting               ← Complete meeting with transcript
+           │
+           ├── segments[] ← List of TranscriptSegment
+           ├── decisions[] ← List of Decision (from analysis)
+           └── action_items[] ← List of ActionItem (from analysis)
+
+    Decision              ← Key decision made in meeting
+    ActionItem            ← Task assigned to someone
+
+=============================================================================
 """
 
 from datetime import datetime
-from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
-class MessageRole(str, Enum):
-    """Role of a message in the conversation."""
-    USER = "user"
-    ASSISTANT = "assistant"
-    SYSTEM = "system"
-
-
 class TranscriptSegment(BaseModel):
-    """A single segment of a meeting transcript."""
+    """
+    A single segment of meeting transcript.
+    
+    Represents one spoken statement in the meeting, typically
+    corresponding to one line in the transcript.
+    
+    EXAMPLE:
+        Input line: "[00:05:30] Alice: I think we should extend the deadline"
+        
+        TranscriptSegment(
+            speaker="Alice",
+            timestamp="00:05:30",
+            text="I think we should extend the deadline"
+        )
+    
+    ATTRIBUTES:
+        speaker: Name of the person speaking (extracted from transcript)
+        timestamp: When this was said (format varies: "00:00" or "00:00:00")
+        text: What was actually said
+    """
     
     speaker: str = Field(
-        description="Name or identifier of the speaker",
+        description="Name of the speaker"
     )
     timestamp: str = Field(
-        description="Timestamp of the segment (e.g., '00:05:23')",
+        default="00:00",
+        description="Timestamp in format HH:MM or HH:MM:SS"
     )
     text: str = Field(
-        description="The spoken text content",
-    )
-    start_seconds: Optional[float] = Field(
-        default=None,
-        description="Start time in seconds",
-    )
-    end_seconds: Optional[float] = Field(
-        default=None,
-        description="End time in seconds",
-    )
-
-
-class Meeting(BaseModel):
-    """A complete meeting with metadata and transcript."""
-    
-    id: str = Field(
-        description="Unique identifier for the meeting",
-    )
-    title: str = Field(
-        description="Title or subject of the meeting",
-    )
-    date: Optional[datetime] = Field(
-        default=None,
-        description="Date and time of the meeting",
-    )
-    participants: list[str] = Field(
-        default_factory=list,
-        description="List of meeting participants",
-    )
-    segments: list[TranscriptSegment] = Field(
-        default_factory=list,
-        description="Transcript segments",
-    )
-    raw_transcript: str = Field(
-        default="",
-        description="Raw transcript text",
-    )
-    source_file: Optional[str] = Field(
-        default=None,
-        description="Original source file name",
-    )
-
-
-class ActionItem(BaseModel):
-    """An action item extracted from a meeting."""
-    
-    task: str = Field(
-        description="Description of the task",
-    )
-    owner: Optional[str] = Field(
-        default=None,
-        description="Person responsible for the task",
-    )
-    deadline: Optional[str] = Field(
-        default=None,
-        description="Deadline or due date (if mentioned)",
-    )
-    priority: Optional[str] = Field(
-        default=None,
-        description="Priority level (high, medium, low)",
-    )
-    context: Optional[str] = Field(
-        default=None,
-        description="Context or source from the transcript",
+        description="The spoken content"
     )
 
 
 class Decision(BaseModel):
-    """A decision made during the meeting."""
+    """
+    A key decision made during a meeting.
+    
+    Extracted by the decisions_node in the LangGraph pipeline.
+    Represents an agreement, conclusion, or direction change.
+    
+    EXAMPLE:
+        Decision(
+            decision="Extend project deadline by 2 weeks",
+            made_by="Project Manager Alice",
+            context="Team needs more time for QA testing",
+            related_discussion="Sprint capacity and testing requirements"
+        )
+    
+    WHAT COUNTS AS A DECISION:
+        ✓ "We decided to use Python"
+        ✓ "The team agreed on a Friday deadline"
+        ✓ "We're pivoting from approach A to B"
+        ✗ "Maybe we should consider..." (just a suggestion)
+        ✗ "What if we tried..." (not final)
+    """
     
     decision: str = Field(
-        description="Description of the decision",
+        description="The specific decision or agreement made"
     )
     made_by: Optional[str] = Field(
         default=None,
-        description="Person who made or announced the decision",
+        description="Person who made or announced the decision"
     )
     context: Optional[str] = Field(
         default=None,
-        description="Context or reasoning behind the decision",
+        description="Reasoning or background behind the decision"
     )
     related_discussion: Optional[str] = Field(
         default=None,
-        description="Related discussion points",
+        description="Key points from the discussion leading to this decision"
     )
 
 
-class MeetingSummary(BaseModel):
-    """Summary of a meeting generated by the AI."""
+class ActionItem(BaseModel):
+    """
+    A task or follow-up action from the meeting.
     
-    overview: str = Field(
-        description="High-level overview of the meeting",
+    Extracted by the actions_node in the LangGraph pipeline.
+    Represents something that needs to be done after the meeting.
+    
+    EXAMPLE:
+        ActionItem(
+            task="Update the API documentation",
+            owner="Bob",
+            deadline="End of week",
+            priority="high",
+            context="Needed before the client demo"
+        )
+    
+    PRIORITY INTERPRETATION:
+        high   → Use "ASAP", "urgent", "critical", "by EOD"
+        medium → Use "this week", "soon", "when possible"
+        low    → Use "when you have time", "nice to have"
+    """
+    
+    task: str = Field(
+        description="The specific task or action to be done"
     )
+    owner: Optional[str] = Field(
+        default=None,
+        description="Person responsible for completing the task"
+    )
+    deadline: Optional[str] = Field(
+        default=None,
+        description="When the task should be completed (if mentioned)"
+    )
+    priority: Optional[str] = Field(
+        default=None,
+        description="Priority level: high, medium, or low"
+    )
+    context: Optional[str] = Field(
+        default=None,
+        description="Additional context about why this task matters"
+    )
+
+
+class Meeting(BaseModel):
+    """
+    Complete meeting record with transcript and analysis.
+    
+    This is the main data structure for a meeting. It includes:
+    - Basic metadata (id, title, timestamps)
+    - The raw and parsed transcript
+    - Analysis results (summary, decisions, action items)
+    
+    LIFECYCLE:
+    ----------
+    
+    1. UPLOAD:
+       Meeting is created with id, title, raw_transcript, segments
+       Analysis fields (summary, decisions, etc.) are None
+    
+    2. ANALYZE:
+       LangGraph pipeline runs and populates:
+       - summary
+       - key_topics
+       - decisions
+       - action_items
+    
+    3. QUERY:
+       Q&A agent uses vector store to answer questions about this meeting
+    
+    EXAMPLE:
+        meeting = Meeting(
+            id="abc-123",
+            title="Sprint Planning",
+            raw_transcript="[00:00] Alice: Welcome everyone...",
+            segments=[TranscriptSegment(...)],
+            participants=["Alice", "Bob", "Carol"]
+        )
+    """
+    
+    # =========================================================================
+    # Basic Metadata
+    # =========================================================================
+    
+    id: str = Field(
+        description="Unique identifier (UUID format)"
+    )
+    
+    title: str = Field(
+        description="Human-readable meeting title"
+    )
+    
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow,
+        description="When the meeting was uploaded"
+    )
+    
+    # =========================================================================
+    # Transcript Data
+    # =========================================================================
+    
+    raw_transcript: Optional[str] = Field(
+        default=None,
+        description="Original unprocessed transcript text"
+    )
+    
+    segments: list[TranscriptSegment] = Field(
+        default_factory=list,
+        description="Parsed transcript segments with speaker/timestamp"
+    )
+    
+    participants: list[str] = Field(
+        default_factory=list,
+        description="List of unique speaker names"
+    )
+    
+    # =========================================================================
+    # Analysis Results (populated by LangGraph pipeline)
+    # =========================================================================
+    
+    summary: Optional[str] = Field(
+        default=None,
+        description="LLM-generated meeting summary"
+    )
+    
     key_topics: list[str] = Field(
         default_factory=list,
-        description="Main topics discussed",
+        description="Main topics discussed in the meeting"
     )
+    
     decisions: list[Decision] = Field(
         default_factory=list,
-        description="Key decisions made",
+        description="Key decisions extracted from the meeting"
     )
+    
     action_items: list[ActionItem] = Field(
         default_factory=list,
-        description="Action items identified",
-    )
-    participants_summary: dict[str, str] = Field(
-        default_factory=dict,
-        description="Summary of each participant's contributions",
+        description="Action items with owners and deadlines"
     )
 
 
-class ChatMessage(BaseModel):
-    """A message in the chat conversation."""
+# =============================================================================
+# RESPONSE MODELS (for API responses)
+# =============================================================================
+# These are used by FastAPI to generate automatic API documentation
+# and validate response formats.
+
+class AnalysisResult(BaseModel):
+    """
+    Response model for meeting analysis endpoint.
     
-    role: MessageRole = Field(
-        description="Role of the message sender",
-    )
-    content: str = Field(
-        description="Content of the message",
-    )
-    timestamp: datetime = Field(
-        default_factory=datetime.now,
-        description="Timestamp of the message",
-    )
-
-
-class ChatRequest(BaseModel):
-    """Request to chat with the AI about a meeting."""
+    Returned by POST /api/v1/meetings/{id}/analyze
+    """
     
     meeting_id: str = Field(
-        description="ID of the meeting to query",
+        description="ID of the analyzed meeting"
     )
-    question: str = Field(
-        description="User's question about the meeting",
+    
+    summary: str = Field(
+        description="Generated meeting summary"
     )
-    chat_history: list[ChatMessage] = Field(
-        default_factory=list,
-        description="Previous messages in the conversation",
+    
+    key_topics: list[str] = Field(
+        description="Main topics discussed"
+    )
+    
+    decisions: list[Decision] = Field(
+        description="Decisions extracted from meeting"
+    )
+    
+    action_items: list[ActionItem] = Field(
+        description="Action items extracted from meeting"
     )
 
 
-class ChatResponse(BaseModel):
-    """Response from the AI chat."""
+class QuestionAnswer(BaseModel):
+    """
+    Response model for Q&A endpoint.
+    
+    Returned by POST /api/v1/meetings/{id}/ask
+    """
     
     answer: str = Field(
-        description="AI's answer to the question",
+        description="Generated answer to the question"
     )
+    
     sources: list[str] = Field(
         default_factory=list,
-        description="Source excerpts from the transcript",
-    )
-    confidence: Optional[float] = Field(
-        default=None,
-        description="Confidence score of the answer",
-    )
-
-
-class TranscriptUploadResponse(BaseModel):
-    """Response after uploading a transcript."""
-    
-    meeting_id: str = Field(
-        description="ID assigned to the meeting",
-    )
-    title: str = Field(
-        description="Detected or assigned title",
-    )
-    segment_count: int = Field(
-        description="Number of transcript segments",
-    )
-    participant_count: int = Field(
-        description="Number of unique participants",
-    )
-    message: str = Field(
-        description="Status message",
-    )
-
-
-class AudioTranscriptionRequest(BaseModel):
-    """Request to transcribe an audio file."""
-    
-    language: Optional[str] = Field(
-        default=None,
-        description="Language code (e.g., 'en', 'es'). Auto-detect if None.",
-    )
-
-
-class AudioTranscriptionResponse(BaseModel):
-    """Response after transcribing audio."""
-    
-    meeting_id: str = Field(
-        description="ID assigned to the meeting",
-    )
-    transcript: str = Field(
-        description="Full transcript text",
-    )
-    segments: list[TranscriptSegment] = Field(
-        description="Transcript segments with timestamps",
-    )
-    language: str = Field(
-        description="Detected language",
-    )
-    duration_seconds: float = Field(
-        description="Duration of the audio in seconds",
-    )
-
-
-class AnalysisRequest(BaseModel):
-    """Request to analyze a meeting transcript."""
-    
-    meeting_id: str = Field(
-        description="ID of the meeting to analyze",
-    )
-    include_summary: bool = Field(
-        default=True,
-        description="Include meeting summary",
-    )
-    include_decisions: bool = Field(
-        default=True,
-        description="Extract decisions",
-    )
-    include_action_items: bool = Field(
-        default=True,
-        description="Extract action items",
-    )
-
-
-class AnalysisResponse(BaseModel):
-    """Response with meeting analysis results."""
-    
-    meeting_id: str = Field(
-        description="ID of the analyzed meeting",
-    )
-    summary: Optional[MeetingSummary] = Field(
-        default=None,
-        description="Meeting summary",
-    )
-    processing_time_seconds: float = Field(
-        description="Time taken to process",
+        description="Transcript excerpts used to generate the answer"
     )
